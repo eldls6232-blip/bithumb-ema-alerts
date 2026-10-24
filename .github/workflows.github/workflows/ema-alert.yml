@@ -1,0 +1,46 @@
+name: Bithumb EMA 9-20 cross alert
+
+on:
+  schedule:
+    - cron: '3-58/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bithumb-ema-9-20
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Check EMA and send alerts
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ALERT_STATE_FILE: alert_state.json
+        run: python bithumb_ema_once.py
+
+      - name: Save alert history
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add alert_state.json workflow_heartbeat.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update Bithumb EMA alert state'
+            git push
+          fi
