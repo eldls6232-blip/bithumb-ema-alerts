@@ -1,4 +1,18 @@
 {
-  "live": [],
-  "confirmed": []
+  "live": [
+    "KRW-BIRB|2026-10-24",
+    "KRW-BTR|2026-10-24",
+    "KRW-DOS|2026-10-24",
+    "KRW-KERNEL|2026-10-24",
+    "KRW-ORDER|2026-10-24",
+    "KRW-REZ|2026-10-24",
+    "KRW-TREE|2026-10-24"
+  ],
+  "confirmed": [
+    "KRW-BABY|2026-10-23",
+    "KRW-HP|2026-10-23",
+    "KRW-MEGA|2026-10-23",
+    "KRW-PHA|2026-10-23",
+    "KRW-VVV|2026-10-23"
+  ]
 }
