@@ -1,46 +1,58 @@
-name: Bithumb EMA 9-20 cross alert
+name: KOSPI KOSDAQ EMA score 80 alerts
 
 on:
   schedule:
-    - cron: '3-58/5 * * * *'
+    - cron: '50 23 * * 0-4'
+
   workflow_dispatch:
+    inputs:
+      test:
+        description: 'Telegram test only'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 concurrency:
-  group: bithumb-ema-9-20
+  group: krx-stock-ema-alerts
   cancel-in-progress: false
 
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
 
-      - name: Install requirements
-        run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
 
-      - name: Check EMA and send alerts
+      - name: Scan KOSPI and KOSDAQ
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          ALERT_STATE_FILE: alert_state.json
-        run: python bithumb_ema_once.py
+          KRX_API_KEY: ${{ secrets.KRX_API_KEY }}
+          TEST_MODE: ${{ inputs.test || 'false' }}
+        run: python stock_scanner.py
 
       - name: Save alert history
+        if: success()
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add alert_state.json workflow_heartbeat.txt
-          if ! git diff --cached --quiet; then
-            git commit -m 'Update Bithumb EMA alert state'
-            git push
+          if [ -f stock_alert_state.json ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add stock_alert_state.json
+            if ! git diff --cached --quiet; then
+              git commit -m 'Update KRX alert date'
+              git push
+            fi
           fi
