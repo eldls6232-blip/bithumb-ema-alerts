@@ -1,6 +1,8 @@
 {
-  "last_scan_date": "2026-11-18",
+  "last_scan_date": "2026-11-19",
   "notified": [
-    "KOSDAQ:096250"
+    "KOSPI:126560",
+    "KOSDAQ:236200",
+    "KOSDAQ:187660"
   ]
 }
